@@ -25,24 +25,23 @@ export async function getUserInput() {
     process.exit(0);
   }
 
-  // Project type
-  const projectType = await select({
-    message: "Project type:",
+  // Ask if fullstack
+  const isFullstack = await select({
+    message: "Fullstack project?",
     options: [
-      { label: "Backend", value: "backend" },
-      { label: "Frontend", value: "frontend" },
-      { label: "Fullstack", value: "fullstack" },
+      { label: "Yes", value: true },
+      { label: "No", value: false },
     ],
   });
 
-  if (isCancel(projectType)) {
+  if (isCancel(isFullstack)) {
     cancel("Operation cancelled");
     process.exit(0);
   }
 
   const answers = {
     projectName,
-    projectType,
+    projectType: isFullstack ? "fullstack" : null,
     frontend: null,
     backend: null,
     database: null,
@@ -52,8 +51,24 @@ export async function getUserInput() {
     initGit: true,
   };
 
-  // Backend configuration
-  if (projectType === "backend") {
+  if (isFullstack) {
+    // Frontend choice
+    const frontend = await select({
+      message: "Frontend framework:",
+      options: [
+        { label: "Vite", value: "vite" },
+        { label: "Next.js", value: "nextjs" },
+      ],
+    });
+
+    if (isCancel(frontend)) {
+      cancel("Operation cancelled");
+      process.exit(0);
+    }
+
+    answers.frontend = frontend;
+
+    // Backend choice
     const backend = await select({
       message: "Backend framework:",
       options: [
@@ -70,7 +85,7 @@ export async function getUserInput() {
     answers.backend = backend;
 
     const language = await select({
-      message: "Language:",
+      message: "Backend language:",
       options: [
         { label: "TypeScript", value: "typescript" },
         { label: "JavaScript", value: "javascript" },
@@ -100,46 +115,74 @@ export async function getUserInput() {
     }
 
     answers.database = database;
-  }
-
-  // Frontend configuration
-  if (projectType === "frontend") {
-    const language = await select({
-      message: "Language:",
+  } else {
+    // Not fullstack - ask frontend or backend
+    const projectType = await select({
+      message: "Project type:",
       options: [
-        { label: "TypeScript", value: "typescript" },
-        { label: "JavaScript", value: "javascript" },
+        { label: "Frontend", value: "frontend" },
+        { label: "Backend", value: "backend" },
       ],
     });
 
-    if (isCancel(language)) {
+    if (isCancel(projectType)) {
       cancel("Operation cancelled");
       process.exit(0);
     }
 
-    answers.useTypeScript = language === "typescript";
-    answers.frontend =
-      language === "typescript" ? "vite-react-ts" : "vite-react";
-  }
+    answers.projectType = projectType;
 
-  // Fullstack configuration
-  if (projectType === "fullstack") {
-    const language = await select({
-      message: "Language:",
-      options: [
-        { label: "TypeScript", value: "typescript" },
-        { label: "JavaScript", value: "javascript" },
-      ],
-    });
+    if (projectType === "frontend") {
+      answers.frontend = "vite";
+    } else {
+      // Backend
+      const backend = await select({
+        message: "Backend framework:",
+        options: [
+          { label: "Express", value: "express" },
+          { label: "Hapi", value: "hapi" },
+        ],
+      });
 
-    if (isCancel(language)) {
-      cancel("Operation cancelled");
-      process.exit(0);
+      if (isCancel(backend)) {
+        cancel("Operation cancelled");
+        process.exit(0);
+      }
+
+      answers.backend = backend;
+
+      const language = await select({
+        message: "Language:",
+        options: [
+          { label: "TypeScript", value: "typescript" },
+          { label: "JavaScript", value: "javascript" },
+        ],
+      });
+
+      if (isCancel(language)) {
+        cancel("Operation cancelled");
+        process.exit(0);
+      }
+
+      answers.useTypeScript = language === "typescript";
+
+      const database = await select({
+        message: "Database:",
+        options: [
+          { label: "PostgreSQL", value: "postgresql" },
+          { label: "MySQL", value: "mysql" },
+          { label: "SQLite", value: "sqlite" },
+          { label: "None", value: "none" },
+        ],
+      });
+
+      if (isCancel(database)) {
+        cancel("Operation cancelled");
+        process.exit(0);
+      }
+
+      answers.database = database;
     }
-
-    answers.useTypeScript = language === "typescript";
-    answers.frontend = "nextjs";
-    answers.backend = null;
   }
 
   return answers;
