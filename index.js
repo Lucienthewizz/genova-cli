@@ -57,10 +57,48 @@ async function main() {
       return;
     }
 
-    // For fullstack, just run Next.js
+    // For fullstack - create monorepo structure
     if (config.projectType === "fullstack") {
-      s.stop();
-      generateFrontend(projectName, config.frontend, config.useTypeScript);
+      createFolder(projectName);
+
+      // Generate frontend in /frontend folder
+      s.message("Generating frontend...");
+      const frontendPath = `${projectName}/frontend`;
+      generateFrontend(frontendPath, config.frontend, config.useTypeScript);
+
+      // Generate backend in /backend folder
+      s.message("Generating backend...");
+      const backendConfig = {
+        ...config,
+        projectType: "backend",
+      };
+      const backendPath = `${projectName}/backend`;
+      createFolder(backendPath);
+      generateBackend(backendPath, backendConfig);
+
+      // Add tooling for backend
+      if (config.addLinting || config.addPrettier) {
+        const serverDir = `${backendPath}/server`;
+
+        if (config.addLinting) {
+          addESLint(serverDir, config.useTypeScript);
+        }
+
+        if (config.addPrettier) {
+          addPrettier(serverDir);
+        }
+      }
+
+      // Initialize Git
+      if (config.initGit) {
+        initializeGit(projectName, getGitignoreTemplate());
+      }
+
+      // Create README
+      const readmeContent = getReadmeTemplate(projectName, config);
+      createFile(`${projectName}/README.md`, readmeContent);
+
+      s.stop("Done");
       console.log(`\ncd ${projectName}`);
       return;
     }
