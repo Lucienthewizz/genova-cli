@@ -1,0 +1,25 @@
+{
+  "name": "genova-cli",
+  "version": "1.0.0",
+  "description": "An interactive CLI tool for scaffolding modern full-stack project boilerplates.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "cli",
+    "scaffold",
+    "generator",
+    "boilerplate"
+  ],
+  "author": "I Gusti Agung Ngurah Lucien Yudistira Purnawarman",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "genova": "./index.js"
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.11.0",
+    "kleur": "^4.1.5"
+  }
+}
