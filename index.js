@@ -52,7 +52,7 @@ async function main() {
     // For frontend-only, just run npm create vite
     if (config.projectType === "frontend") {
       s.stop();
-      generateFrontend(projectName, config.frontend);
+      generateFrontend(projectName, config.frontend, config.useTypeScript);
       console.log(`\ncd ${projectName}`);
       return;
     }
@@ -60,7 +60,7 @@ async function main() {
     // For fullstack, just run Next.js
     if (config.projectType === "fullstack") {
       s.stop();
-      generateFrontend(projectName, config.frontend);
+      generateFrontend(projectName, config.frontend, config.useTypeScript);
       console.log(`\ncd ${projectName}`);
       return;
     }

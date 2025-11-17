@@ -46,7 +46,7 @@ export async function getUserInput() {
     frontend: null,
     backend: null,
     database: null,
-    useTypeScript: true,
+    useTypeScript: false,
     addLinting: true,
     addPrettier: true,
     initGit: true,
@@ -69,6 +69,21 @@ export async function getUserInput() {
 
     answers.backend = backend;
 
+    const language = await select({
+      message: "Language:",
+      options: [
+        { label: "TypeScript", value: "typescript" },
+        { label: "JavaScript", value: "javascript" },
+      ],
+    });
+
+    if (isCancel(language)) {
+      cancel("Operation cancelled");
+      process.exit(0);
+    }
+
+    answers.useTypeScript = language === "typescript";
+
     const database = await select({
       message: "Database:",
       options: [
@@ -89,11 +104,40 @@ export async function getUserInput() {
 
   // Frontend configuration
   if (projectType === "frontend") {
-    answers.frontend = "vite-react-ts";
+    const language = await select({
+      message: "Language:",
+      options: [
+        { label: "TypeScript", value: "typescript" },
+        { label: "JavaScript", value: "javascript" },
+      ],
+    });
+
+    if (isCancel(language)) {
+      cancel("Operation cancelled");
+      process.exit(0);
+    }
+
+    answers.useTypeScript = language === "typescript";
+    answers.frontend =
+      language === "typescript" ? "vite-react-ts" : "vite-react";
   }
 
   // Fullstack configuration
   if (projectType === "fullstack") {
+    const language = await select({
+      message: "Language:",
+      options: [
+        { label: "TypeScript", value: "typescript" },
+        { label: "JavaScript", value: "javascript" },
+      ],
+    });
+
+    if (isCancel(language)) {
+      cancel("Operation cancelled");
+      process.exit(0);
+    }
+
+    answers.useTypeScript = language === "typescript";
     answers.frontend = "nextjs";
     answers.backend = null;
   }
